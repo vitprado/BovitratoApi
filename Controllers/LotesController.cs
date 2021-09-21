@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 
 namespace BovitratoApi.Controllers
 {
@@ -13,12 +10,12 @@ namespace BovitratoApi.Controllers
     public class LotesController : ControllerBase
     {
         [HttpGet]
-        public string Get()
+        public ContentResult Get()
         {
             string connectionString = "Data Source=localhost;Initial Catalog=Bovitrato;Integrated Security=True";
 
             string sql =
-                "select TOP 10 [LoteNumero] as codigo " +
+                "select TOP 1000 [LoteNumero] as codigo " +
                 ", LoteSexo as sexo " +
                 ", [LoteDataEntrada] as dataEntrada " +
                 ", [LoteDataSaida] as dataSaida " +
@@ -30,9 +27,10 @@ namespace BovitratoApi.Controllers
                 ", [LoteDiasCochoEsperado] as dcEsperado " +
                 ", [LoteRendEsperado] as rendEsperado " +
                 "from Lote " +
-                "FOR JSON PATH";
+                "ORDER BY codigo ASC " +
+                "FOR JSON PATH, INCLUDE_NULL_VALUES";
 
-            string retorno = "";
+            var jsonResult = new StringBuilder();
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -43,9 +41,16 @@ namespace BovitratoApi.Controllers
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        while (dr.Read())
+                        if (!dr.HasRows)
                         {
-                            retorno += dr[0].ToString();
+                            jsonResult.Append("[]");
+                        }
+                        else
+                        {
+                            while (dr.Read())
+                            {
+                                jsonResult.Append(dr.GetValue(0).ToString());
+                            }
                         }
                     }
                 }
@@ -55,7 +60,7 @@ namespace BovitratoApi.Controllers
                 }
             }
 
-            return retorno;
+            return Content(jsonResult.ToString(), "application/json");;
         }
     }
 }
