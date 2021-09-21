@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  bovitratoapi:
+    container_name: bovitrato_API
+    build:
+      context: .
+    ports:
+      - "44309:80"
+    networks:
+      - mynet
+
+
+networks: 
+    mynet:
+        driver: bridge
