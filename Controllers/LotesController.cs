@@ -12,7 +12,6 @@ namespace BovitratoApi.Controllers
         [HttpGet]
         public ContentResult GetLotes()
         {
-            string connectionString = "Data Source=localhost;Initial Catalog=Bovitrato;Integrated Security=True";
 
             string sql =
                 "select TOP 1000 [LoteNumero] as codigo " +
@@ -32,7 +31,7 @@ namespace BovitratoApi.Controllers
 
             var jsonResult = new StringBuilder();
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlConnection conn = new(Global.ConnectionString))
             {
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 try
@@ -66,7 +65,6 @@ namespace BovitratoApi.Controllers
         [HttpGet("{id}")]
         public ContentResult GetLoteId(int id)
         {
-            string connectionString = "Data Source=localhost;Initial Catalog=Bovitrato;Integrated Security=True";
 
             string sql =
                 "SELECT [LoteNumero] as codigo " +
@@ -81,14 +79,20 @@ namespace BovitratoApi.Controllers
                 ", [LoteDiasCochoEsperado] as dcEsperado " +
                 ", [LoteRendEsperado] as rendEsperado " +
                 "FROM Lote " +
-                "WHERE LoteNumero = " + id + " " +
+                "WHERE LoteNumero = @id " +
                 "FOR JSON PATH, INCLUDE_NULL_VALUES";
 
-            var jsonResult = new StringBuilder();
+            SqlParameter param = new();
+            param.ParameterName = "@id";
+            param.Value = id;
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            StringBuilder jsonResult = new();
+
+            using (SqlConnection conn = new(Global.ConnectionString))
             {
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                SqlCommand cmd = new(sql, conn);
+                cmd.Parameters.Add(param);
+
                 try
                 {
                     conn.Open();

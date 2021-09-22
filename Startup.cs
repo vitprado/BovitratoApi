@@ -14,11 +14,17 @@ using System.Threading.Tasks;
 
 namespace BovitratoApi
 {
+    public class Global
+    {
+        public static string ConnectionString { get; set; }
+    }
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            Global.ConnectionString = "Data Source=localhost;Initial Catalog=Bovitrato;Integrated Security=True";
         }
 
         public IConfiguration Configuration { get; }
