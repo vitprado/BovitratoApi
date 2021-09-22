@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Data;
 using System.Data.SqlClient;
 using System.Text;
 
@@ -14,7 +15,7 @@ namespace BovitratoApi.Controllers
         {
 
             string sql =
-                "select TOP 1000 [LoteNumero] as codigo " +
+                "select TOP 1000 [LoteNumeroSequencia] as codigo " +
                 ", LoteSexo as sexo " +
                 ", [LoteDataEntrada] as dataEntrada " +
                 ", [LoteDataSaida] as dataSaida " +
@@ -29,11 +30,11 @@ namespace BovitratoApi.Controllers
                 "ORDER BY codigo ASC " +
                 "FOR JSON PATH, INCLUDE_NULL_VALUES";
 
-            var jsonResult = new StringBuilder();
+            StringBuilder jsonResult = new();
 
             using (SqlConnection conn = new(Global.ConnectionString))
             {
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                SqlCommand cmd = new(sql, conn);
                 try
                 {
                     conn.Open();
@@ -63,11 +64,11 @@ namespace BovitratoApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public ContentResult GetLoteId(int id)
+        public ContentResult GetLoteId(string id)
         {
 
             string sql =
-                "SELECT [LoteNumero] as codigo " +
+                "SELECT [LoteNumeroSequencia] as codigo " +
                 ", LoteSexo as sexo " +
                 ", [LoteDataEntrada] as dataEntrada " +
                 ", [LoteDataSaida] as dataSaida " +
@@ -79,12 +80,12 @@ namespace BovitratoApi.Controllers
                 ", [LoteDiasCochoEsperado] as dcEsperado " +
                 ", [LoteRendEsperado] as rendEsperado " +
                 "FROM Lote " +
-                "WHERE LoteNumero = @id " +
+                "WHERE LoteNumeroSequencia = @id " +
                 "FOR JSON PATH, INCLUDE_NULL_VALUES";
 
             SqlParameter param = new();
             param.ParameterName = "@id";
-            param.Value = id;
+            param.Value = id.ToString();
 
             StringBuilder jsonResult = new();
 
