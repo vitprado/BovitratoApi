@@ -50,6 +50,9 @@ namespace BovitratoApi
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BovitratoApi v1"));
             }
 
+            // Add Static Files Middleware  
+            app.UseStaticFiles();
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
