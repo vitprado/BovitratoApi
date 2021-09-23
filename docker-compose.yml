@@ -3,13 +3,48 @@ version: '3.8'
 services:
   bovitratoapi:
     container_name: bovitrato_API
+    restart: unless-stopped
     build:
       context: .
-    ports:
-      - "44309:80"
+      dockerfile: Dockerfile
+    #ports:
+    #  - "44309:80"
     networks:
       - mynet
 
+  web:
+    image: nginx:1.21.3-alpine
+    container_name: web_API
+    restart: unless-stopped
+    ports:
+      - "8080:8081"
+      - "80:80"
+    expose:
+      - "8080"
+    volumes:
+      - ./html:/var/www/html:rw
+      - ./nginx:/etc/nginx/conf.d:ro
+      - ./log:/var/log/nginx
+    networks:
+      - mynet
+    links:
+      - bovitratoapi
+      - php
+
+  php:
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    container_name: php
+    restart: unless-stopped
+    environment:
+      - PHP_INI_MEMORY_LIMIT=256M
+      - PHP_INI_UPLOAD_FILESIZE=20M
+      - PHP_INI_POST_MAX_SIZE=20M
+    volumes:
+      - ./html:/var/www/html:rw
+    networks:
+      - mynet
 
 networks: 
     mynet:
